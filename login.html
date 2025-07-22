@@ -1,0 +1,112 @@
+<!-- Updated login.html with backend integration -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login/Sign Up</title>
+   <link rel="icon" type="image/png" href="h.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>.hidden { display: none; }</style>
+</head>
+<body class="bg-cover bg-center min-h-screen flex items-center justify-center font-sans" style="background-image: url('bg.jpg');">
+
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <h2 id="form-title" class="text-3xl font-bold text-center text-gray-800 mb-6">Login to Your Account</h2>
+
+    <!-- Login Form -->
+    <form id="login-form" class="space-y-6">
+      <div>
+        <label for="login-email" class="block mb-1 text-sm font-medium text-gray-700">Email Address</label>
+        <input type="email" id="login-email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none" required />
+      </div>
+      <div class="relative">
+        <label for="login-password" class="block mb-1 text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="login-password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none" required />
+        <button type="button" onclick="togglePassword('login-password')" class="absolute right-4 top-9 text-gray-500"></button>
+      </div>
+      <button type="submit" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-xl font-semibold transition-all duration-300">Login</button>
+      <p class="text-sm text-center mt-4">Don’t have an account? <a href="#" onclick="toggleForm()" class="text-purple-600 font-medium hover:underline">Sign up</a></p>
+    </form>
+
+    <!-- Sign Up Form -->
+    <form id="signup-form" class="space-y-6 hidden">
+      <div>
+        <label for="signup-name" class="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+        <input type="text" id="signup-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none" required />
+      </div>
+      <div>
+        <label for="signup-email" class="block mb-1 text-sm font-medium text-gray-700">Email Address</label>
+        <input type="email" id="signup-email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none" required />
+      </div>
+      <div class="relative">
+        <label for="signup-password" class="block mb-1 text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="signup-password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-400 focus:outline-none" required />
+        <button type="button" onclick="togglePassword('signup-password')" class="absolute right-4 top-9 text-gray-500"></button>
+      </div>
+      <button type="submit" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-xl font-semibold transition-all duration-300">Sign Up</button>
+      <p class="text-sm text-center mt-4">Already have an account? <a href="#" onclick="toggleForm()" class="text-purple-600 font-medium hover:underline">Login</a></p>
+    </form>
+  </div>
+
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function toggleForm() {
+      const loginForm = document.getElementById("login-form");
+      const signupForm = document.getElementById("signup-form");
+      const title = document.getElementById("form-title");
+
+      loginForm.classList.toggle("hidden");
+      signupForm.classList.toggle("hidden");
+      title.innerText = signupForm.classList.contains("hidden") ? "Login to Your Account" : "Create an Account";
+    }
+
+    document.getElementById("login-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (data.name) {
+        localStorage.setItem("user", JSON.stringify(data));
+        window.location.href = "main.html";
+      } else {
+        alert("Invalid credentials");
+      }
+    });
+
+    document.getElementById("signup-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const name = document.getElementById("signup-name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+
+      const res = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+      if (data.message) {
+        alert("Registered! You can login now.");
+        toggleForm();
+      } else {
+        alert("User already exists");
+      }
+    });
+  </script>
+
+</body>
+</html>
