@@ -22,3 +22,4 @@ This web app detects your emotion from a photo or camera and recommends music ba
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
+python server.py
